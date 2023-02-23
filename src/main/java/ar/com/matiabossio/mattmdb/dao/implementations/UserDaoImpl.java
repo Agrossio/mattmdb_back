@@ -181,7 +181,11 @@ public class UserDaoImpl implements IUserDao {
 
         Connection connection = DatabaseConnection.getDatabaseConnection();
 
-        String query = "UPDATE users SET username = ?, email = ?, password = ? WHERE id_user = ?";
+        // query original:
+        // String query = "UPDATE users SET username = ?, email = ?, password = ? WHERE id_user = ?";
+
+        // no quiero actualizar la contraseña:
+        String query = "UPDATE users SET username = ?, email = ? WHERE id_user = ?";
 
         try {
             PreparedStatement stmt = connection.prepareStatement(query);
@@ -190,18 +194,25 @@ public class UserDaoImpl implements IUserDao {
 
             stmt.setString(1, userFromRequest.getUsername());
             stmt.setString(2, userFromRequest.getEmail());
-            stmt.setString(3, userFromRequest.getPassword());
-            stmt.setInt(4, userFromRequest.getUserId());
+            // stmt.setString(3, userFromRequest.getPassword());
+            stmt.setInt(3, userFromRequest.getUserId());
 
-            int updatedRows = stmt.executeUpdate();     // retorna la cantidad de registros actualizados
+            int updatedRows = stmt.executeUpdate();     // ejecuto la query y retorno la cantidad de registros actualizados
             stmt.close();
 
-            User updatedUser = null;    // sino se actualizó => updatedRows = 0 => retorno null
+            User updatedUser = new User();    // sino se actualizó => updatedRows = 0 => retorno null
 
             if (updatedRows != 0){
             // Busco el usuario actualizado en la BD (el this es
             // instancia de UserDaoImpl que llama al metodo getUserById):
-                updatedUser = this.getUserById(userFromRequest.getUserId());
+               User userFromDataBase = this.getUserById(userFromRequest.getUserId());
+
+            /* No retorno directamente el usuario encontrado para no retornar el password.
+               Agrego en updatedUser todos los atributos menos la contraseña:
+             */
+               updatedUser.setUserId(userFromDataBase.getUserId());
+               updatedUser.setUsername(userFromDataBase.getUsername());
+               updatedUser.setEmail(userFromDataBase.getEmail());
             }
             return updatedUser;
 

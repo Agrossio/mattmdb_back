@@ -83,9 +83,9 @@ private IUserService userService;
         User loggedUser = userService.loginUserService(userFromRequest);
 
         if (loggedUser == null){
-            Message message = new Message("Please check your login credentials", 401, false, loggedUser);
+            Message message = new Message("Please check your login credentials", 403, false, loggedUser);
 
-            return Response.ok().status(Response.Status.UNAUTHORIZED).entity(message).build();
+            return Response.ok().status(Response.Status.FORBIDDEN).entity(message).build();
         }
 
         Message message = new Message("User logged OK", 200, true, loggedUser);
@@ -136,6 +136,12 @@ private IUserService userService;
         User updatedUser = userService.updateUserService(userFromRequest);
 
         if (updatedUser == null){
+            Message message = new Message("Wrong credentials", 403, false, updatedUser);
+
+            return Response.ok().status(Response.Status.FORBIDDEN).entity(message).build();
+        }
+
+        if (updatedUser.getUserId() == null){
             Message message = new Message("User not found", 404, false, updatedUser);
 
             return Response.ok().status(Response.Status.NOT_FOUND).entity(message).build();

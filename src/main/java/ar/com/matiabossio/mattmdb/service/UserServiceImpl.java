@@ -52,8 +52,65 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public User updateUserService(User userFromRequest) {
-        User updatedUser = new UserDaoImpl().upateUser(userFromRequest);
+
+        // Original:
+        // User updatedUser = new UserDaoImpl().upateUser(userFromRequest);
+        // return updatedUser;
+
+        // userFromRequest tiene userId, username, email y password
+        User updatedUser = new User();
+
+        // busco el usuario con ese email en la BD para ver si coinciden los passwords
+        User foundUser = new UserDaoImpl().getUserById(userFromRequest.getUserId());
+
+        // sino existe en la BD retorno null
+        if( foundUser == null){
+            return updatedUser;
+        }
+
+        // si los passwords coinciden edito los datos del usuario en la base de datos:
+        if (userFromRequest.getPassword().equals(foundUser.getPassword())){
+
+            // asigno en updatedUser el usuario editado que retorna el updateUser()
+            updatedUser = new UserDaoImpl().upateUser(userFromRequest);
+
+        } else {
+            return null;
+        }
+
+        // si los passwords no coinciden tambien retorno null
         return updatedUser;
+
+        /*
+
+         User loggedUser = new User();
+
+        // busco el usuario con ese email en la BD para ver si coinciden los passwords
+        User foundUser = new UserDaoImpl().getUserByEmail(userFromRequest.getEmail());
+
+        // sino existe en la BD retorno null
+        if( foundUser == null){
+            return loggedUser = null;
+        }
+
+        // si los passwords coinciden retorno los datos del usuario de la base de datos:
+        if (userFromRequest.getPassword().equals(foundUser.getPassword())){
+
+            // cargo de a uno los datos para no retornar al front la contraseña:
+            loggedUser.setUserId(foundUser.getUserId());
+            loggedUser.setUsername(foundUser.getUsername());
+            loggedUser.setEmail(foundUser.getEmail());
+
+        } else {
+            // si los passwords no coinciden tambien retorno null
+            loggedUser = null;
+        }
+
+        return loggedUser;
+    }
+
+         */
+
     }
 
     @Override
@@ -71,17 +128,14 @@ public class UserServiceImpl implements IUserService {
 
         // userFromRequest tiene solo email y password
 
-        // tambien consultar porque no anda con => User loggedUser = null;
-        User loggedUser = new User(null, null,null, null);
-
-        // probar con User loggedUser = new User(); en vez de new User(null, null, null..)
+        User loggedUser = new User();
 
         // busco el usuario con ese email en la BD para ver si coinciden los passwords
         User foundUser = new UserDaoImpl().getUserByEmail(userFromRequest.getEmail());
 
         // sino existe en la BD retorno null
         if( foundUser == null){
-            return loggedUser = null;
+            loggedUser = null;
         }
 
         // si los passwords coinciden retorno los datos del usuario de la base de datos:
