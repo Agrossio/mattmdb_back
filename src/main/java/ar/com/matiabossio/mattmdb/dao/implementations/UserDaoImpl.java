@@ -105,8 +105,8 @@ public class UserDaoImpl implements IUserDao {
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
 
-            //creo un user null porque sino lo encuentro devuelvo un null:
-            User user = null;   // reserva el espacio en memoria para un objeto de tipo User, pero sin nada dentro
+            //creo un user vacio porque sino lo encuentro devuelvo un null:
+            User user = new User();   // reserva el espacio en memoria para un objeto de tipo User, pero sin nada dentro
 
             if (rs.next()){
 
